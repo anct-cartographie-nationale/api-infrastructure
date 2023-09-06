@@ -1,6 +1,6 @@
 data "aws_s3_objects" "s3_objects_metadata" {
   bucket = aws_s3_bucket.api.id
-  prefix = "production/"
+  prefix = "v0/"
 }
 
 data "aws_s3_object" "s3_objects" {
