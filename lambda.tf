@@ -55,7 +55,8 @@ resource "aws_iam_role" "api_routes_roles" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_policy" {
-  role       = aws_iam_role.api_routes_roles.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+resource "aws_iam_policy_attachment" "lieux_inclusion_numerique_table_policy_attachment" {
+  name       = "lieux_inclusion_numerique_table_policy_attachment"
+  policy_arn = aws_iam_policy.lieux_inclusion_numerique_table_policy.arn
+  roles      = [aws_iam_role.api_routes_roles.name]
 }
