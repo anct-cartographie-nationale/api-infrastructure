@@ -2,6 +2,12 @@ resource "aws_apigatewayv2_api" "cartographie_nationale" {
   name          = "${local.product_information.context.project}-${local.product_information.context.service}"
   tags          = local.tags
   protocol_type = "HTTP"
+
+  cors_configuration {
+    allow_origins = [
+      "*"
+    ]
+  }
 }
 
 resource "aws_apigatewayv2_stage" "cartographie_nationale" {
@@ -36,8 +42,7 @@ resource "aws_apigatewayv2_integration" "api_integrations" {
     if object.content_type == "application/zip"
   }
 
-  api_id = aws_apigatewayv2_api.cartographie_nationale.id
-
+  api_id             = aws_apigatewayv2_api.cartographie_nationale.id
   integration_uri    = aws_lambda_function.api_routes[each.key].invoke_arn
   integration_type   = "AWS_PROXY"
   integration_method = "POST"

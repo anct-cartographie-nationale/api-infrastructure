@@ -111,3 +111,10 @@ override.tf.json
 .terraformrc
 terraform.rc
 .terraform.lock.hcl
+
+# Node
+node_modules/
+
+# Build
+dist
+import-from-s3
