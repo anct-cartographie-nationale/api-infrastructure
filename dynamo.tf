@@ -1,3 +1,9 @@
+resource "aws_s3_bucket" "lieux_inclusion_numerique_table_import" {
+  bucket        = "${replace(local.product_information.context.project, "_", "-")}-dynamo-table-import"
+  force_destroy = true
+  tags          = local.tags
+}
+
 resource "aws_dynamodb_table" "lieux_inclusion_numerique_table" {
   name           = "LieuxInclusionNumerique"
   billing_mode   = "PROVISIONED"
