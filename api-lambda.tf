@@ -52,6 +52,12 @@ resource "aws_iam_role" "api_routes_roles" {
   })
 }
 
+resource "aws_iam_policy_attachment" "sources_table_policy_attachment" {
+  name       = "sources_table_policy_attachment"
+  policy_arn = aws_iam_policy.sources_table_table_policy.arn
+  roles      = [aws_iam_role.api_routes_roles.name]
+}
+
 resource "aws_iam_policy_attachment" "lieux_inclusion_numerique_table_policy_attachment" {
   name       = "lieux_inclusion_numerique_table_policy_attachment"
   policy_arn = aws_iam_policy.lieux_inclusion_numerique_table_policy.arn
