@@ -16,14 +16,15 @@ resource "aws_lambda_function" "api_routes" {
     if object.content_type == "application/zip"
   }
 
-  function_name = replace(basename(each.key), "/\\..*/", "")
-  s3_bucket     = aws_s3_bucket.api.id
-  s3_key        = each.key
-  runtime       = "nodejs18.x"
-  handler       = "index.handler"
-  timeout       = 20
-  memory_size   = 2048
-  role          = aws_iam_role.api_routes_roles.arn
+  function_name    = replace(basename(each.key), "/\\..*/", "")
+  s3_bucket        = aws_s3_bucket.api.id
+  s3_key           = each.key
+  runtime          = "nodejs18.x"
+  handler          = "index.handler"
+  timeout          = 20
+  memory_size      = 2048
+  role             = aws_iam_role.api_routes_roles.arn
+  source_code_hash = each.value.etag
 }
 
 resource "aws_cloudwatch_log_group" "api_routes" {
