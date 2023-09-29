@@ -1,5 +1,5 @@
 resource "aws_apigatewayv2_api" "cartographie_nationale" {
-  name          = "${local.product_information.context.project}-${local.product_information.context.service}"
+  name          = local.name_prefix
   tags          = local.tags
   protocol_type = "HTTP"
 
@@ -35,6 +35,15 @@ resource "aws_apigatewayv2_stage" "cartographie_nationale" {
   }
 }
 
+resource "aws_apigatewayv2_authorizer" "api_key_authorizer" {
+  api_id                            = aws_apigatewayv2_api.cartographie_nationale.id
+  authorizer_type                   = "REQUEST"
+  authorizer_uri                    = aws_lambda_function.import_from_s3.invoke_arn
+  identity_sources                  = ["$request.header.Authorization"]
+  name                              = "${local.name_prefix}.key-authorizer"
+  authorizer_payload_format_version = "2.0"
+}
+
 resource "aws_apigatewayv2_integration" "api_integrations" {
   for_each = {
     for object in data.aws_s3_object.s3_objects :
@@ -55,9 +64,10 @@ resource "aws_apigatewayv2_route" "api_route" {
     if object.content_type == "application/zip"
   }
 
-  api_id    = aws_apigatewayv2_api.cartographie_nationale.id
-  route_key = "GET /${aws_lambda_function.api_routes[each.key].function_name}"
-  target    = "integrations/${aws_apigatewayv2_integration.api_integrations[each.key].id}"
+  api_id        = aws_apigatewayv2_api.cartographie_nationale.id
+  route_key     = "${upper(element(split(".", each.key), length(split(".", each.key)) - 2))} /${aws_lambda_function.api_routes[each.key].function_name}"
+  target        = "integrations/${aws_apigatewayv2_integration.api_integrations[each.key].id}"
+  authorizer_id = element(split(".", each.key), length(split(".", each.key)) - 2) != "get" ? aws_apigatewayv2_authorizer.api_key_authorizer.id : null
 }
 
 resource "aws_cloudwatch_log_group" "api_cartographie_nationale" {

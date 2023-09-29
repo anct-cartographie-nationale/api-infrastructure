@@ -89,6 +89,9 @@ jobs:
           mv "import-from-s3/index.mjs" "dist/index.mjs"
           (cd dist && zip "import-from-s3.zip" "index.mjs")
           rm "dist/index.mjs"
+          mv "api-keys-authorizer/index.mjs" "dist/index.mjs"
+          (cd dist && zip "api-keys-authorizer.zip" "index.mjs")
+          rm "dist/index.mjs"
       - name: Publish on S3
         uses: jakejarvis/s3-sync-action@master
         with:

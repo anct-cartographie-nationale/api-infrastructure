@@ -25,7 +25,8 @@ locals {
 }
 
 locals {
-  projectTitle = title(replace(local.product_information.context.project, "-", " "))
-  layerTitle   = title(replace(local.product_information.context.layer, "-", " "))
-  serviceTitle = title(replace(local.product_information.context.service, "-", " "))
+  name_prefix   = "${local.product_information.context.project}-${local.product_information.context.service}"
+  project_title = title(replace(local.product_information.context.project, "-", " "))
+  layer_title   = title(replace(local.product_information.context.layer, "-", " "))
+  service_title = title(replace(local.product_information.context.service, "-", " "))
 }

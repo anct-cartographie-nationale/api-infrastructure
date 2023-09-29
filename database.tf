@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "sources_table" {
-  name         = "Sources"
+  name         = "${local.product_information.context.project}.sources"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "name"
 
@@ -11,7 +11,7 @@ resource "aws_dynamodb_table" "sources_table" {
   tags = local.tags
 }
 
-data "aws_iam_policy_document" "sources_table_table_policy_document" {
+data "aws_iam_policy_document" "sources_table_policy_document" {
   statement {
     effect = "Allow"
     actions = [
@@ -26,14 +26,14 @@ data "aws_iam_policy_document" "sources_table_table_policy_document" {
   }
 }
 
-resource "aws_iam_policy" "sources_table_table_policy" {
-  name        = "sources_table_table_policy"
+resource "aws_iam_policy" "sources_table_policy" {
+  name        = "${local.product_information.context.project}.sources-table-policy"
   description = "IAM policy to allow DynamoDB Table sources access"
-  policy      = data.aws_iam_policy_document.sources_table_table_policy_document.json
+  policy      = data.aws_iam_policy_document.sources_table_policy_document.json
 }
 
 resource "aws_dynamodb_table" "lieux_inclusion_numerique_table" {
-  name         = "LieuxInclusionNumerique"
+  name         = "${local.product_information.context.project}.lieux-inclusion-numerique"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "id"
 
@@ -61,11 +61,10 @@ data "aws_iam_policy_document" "lieux_inclusion_numerique_table_policy_document"
 }
 
 resource "aws_iam_policy" "lieux_inclusion_numerique_table_policy" {
-  name        = "lieux_inclusion_numerique_table_policy"
+  name        = "${local.name_prefix}.lieux-inclusion-numerique-table-policy"
   description = "IAM policy to allow DynamoDB Table Lieux d'inclusion numérique access"
   policy      = data.aws_iam_policy_document.lieux_inclusion_numerique_table_policy_document.json
 }
-
 
 resource "aws_s3_bucket" "dynamo_table_import" {
   bucket        = "${replace(local.product_information.context.project, "_", "-")}-dynamo-table-import"
@@ -101,15 +100,13 @@ data "aws_iam_policy_document" "read_from_s3_policy_document" {
 }
 
 resource "aws_iam_role_policy" "read_from_s3_role_policy" {
-  name   = "read-from-s3-role-policy"
+  name   = "${local.name_prefix}.read-from-s3-role-policy"
   role   = aws_iam_role.import_from_s3_role.id
   policy = data.aws_iam_policy_document.read_from_s3_policy_document.json
 }
 
-
-
 resource "aws_iam_role_policy" "import_in_dynamo_table_role_policy" {
-  name   = "import-in-dynamo-table-role-policy"
+  name   = "${local.name_prefix}.import-in-dynamo-table-role-policy"
   role   = aws_iam_role.import_from_s3_role.id
   policy = data.aws_iam_policy_document.lieux_inclusion_numerique_table_policy_document.json
 }

@@ -116,5 +116,6 @@ terraform.rc
 node_modules/
 
 # Build
-dist
-import-from-s3
+dist/
+api-keys-authorizer/
+import-from-s3/

@@ -4,7 +4,6 @@ data "aws_s3_object" "import_from_s3_archive" {
   key    = "utilities/import-from-s3.zip"
 }
 
-
 data "archive_file" "import_from_s3_archive" {
   count       = fileexists("${path.module}/import-from-s3/index.mjs") ? 1 : 0
   type        = "zip"
@@ -25,7 +24,7 @@ resource "aws_lambda_function" "import_from_s3" {
   source_code_hash = fileexists("${path.module}/import-from-s3/index.mjs") ? data.archive_file.import_from_s3_archive[0].output_base64sha256 : null
 }
 
-resource "aws_cloudwatch_log_group" "example" {
+resource "aws_cloudwatch_log_group" "import_from_s3_cloudwatch_log_group" {
   name              = "/aws/lambda/${aws_lambda_function.import_from_s3.function_name}"
   retention_in_days = 14
 }
@@ -47,22 +46,4 @@ resource "aws_iam_role" "import_from_s3_role" {
   description        = "References a policy document that can assume role for import from s3 lambda trigger"
   tags               = local.tags
   assume_role_policy = data.aws_iam_policy_document.lambda_execution_policy.json
-}
-
-data "aws_iam_policy_document" "cloud_watch_role_policy_document" {
-  statement {
-    effect = "Allow"
-    actions = [
-      "logs:CreateLogGroup",
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-    resources = ["arn:aws:logs:*:*:*"]
-  }
-}
-
-resource "aws_iam_role_policy" "cloud_watch_role_policy" {
-  name   = "cloud-watch-role-policy"
-  role   = aws_iam_role.import_from_s3_role.id
-  policy = data.aws_iam_policy_document.cloud_watch_role_policy_document.json
 }
