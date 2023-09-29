@@ -16,7 +16,7 @@ resource "aws_lambda_function" "api_routes" {
     if object.content_type == "application/zip"
   }
 
-  function_name    = replace(basename(each.key), "/\\..*/", "")
+  function_name    = replace(trimsuffix(basename(each.key), ".zip"), ".", "-")
   s3_bucket        = aws_s3_bucket.api.id
   s3_key           = each.key
   runtime          = "nodejs18.x"
