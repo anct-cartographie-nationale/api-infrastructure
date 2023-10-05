@@ -1,10 +1,10 @@
 resource "aws_dynamodb_table" "api_keys_table" {
   name         = "${local.product_information.context.project}.api-keys"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "name"
+  hash_key     = "key"
 
   attribute {
-    name = "name"
+    name = "key"
     type = "S"
   }
 
@@ -72,7 +72,7 @@ data "aws_iam_policy_document" "api_keys_authorizer_execution_policy" {
 
 resource "aws_iam_role" "api_keys_authorizer_execution_role" {
   name               = "${local.name_prefix}.keys-authorizer-execution-role"
-  description        = "Authentication iam role references a policy document that can assume role for api keys authorizer execution"
+  description        = "Authentication iam role references a policy document that can assume role for lambda authorizer"
   tags               = local.tags
   assume_role_policy = data.aws_iam_policy_document.api_keys_authorizer_execution_policy.json
 }

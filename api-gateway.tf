@@ -35,12 +35,53 @@ resource "aws_apigatewayv2_stage" "cartographie_nationale" {
   }
 }
 
+data "aws_iam_policy_document" "api_assume_role_policy_document" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      identifiers = ["apigateway.amazonaws.com"]
+      type        = "Service"
+    }
+  }
+}
+
+resource "aws_iam_role" "authorizer_role" {
+  name               = "authorizer-role"
+  description        = "Authorizer iam role references a policy document that can assume role for api gateway"
+  tags               = local.tags
+  assume_role_policy = data.aws_iam_policy_document.api_assume_role_policy_document.json
+}
+
+data "aws_iam_policy_document" "lambda_invoke_policy_document" {
+  statement {
+    actions   = ["lambda:InvokeFunction"]
+    effect    = "Allow"
+    resources = [aws_lambda_function.api_keys_authorizer.arn]
+    sid       = "ApiGatewayInvokeLambda"
+  }
+}
+
+resource "aws_iam_policy" "authorizer_policy" {
+  name        = "authorizer-policy"
+  description = "IAM policy to allow authorizer lambda invocation form api gateway"
+  policy      = data.aws_iam_policy_document.lambda_invoke_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "authorizer_role_policy_attachment" {
+  role       = aws_iam_role.authorizer_role.name
+  policy_arn = aws_iam_policy.authorizer_policy.arn
+}
+
 resource "aws_apigatewayv2_authorizer" "api_key_authorizer" {
+  name                              = "${local.name_prefix}.key-authorizer"
   api_id                            = aws_apigatewayv2_api.cartographie_nationale.id
   authorizer_type                   = "REQUEST"
-  authorizer_uri                    = aws_lambda_function.import_from_s3.invoke_arn
-  identity_sources                  = ["$request.header.Authorization"]
-  name                              = "${local.name_prefix}.key-authorizer"
+  authorizer_uri                    = aws_lambda_function.api_keys_authorizer.invoke_arn
+  authorizer_credentials_arn        = aws_iam_role.authorizer_role.arn
+  identity_sources                  = ["$request.header.x-api-key"]
+  enable_simple_responses           = true
   authorizer_payload_format_version = "2.0"
 }
 
