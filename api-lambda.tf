@@ -9,22 +9,26 @@ data "aws_s3_object" "s3_objects" {
   bucket = data.aws_s3_objects.s3_objects_metadata.id
 }
 
-resource "aws_lambda_function" "api_routes" {
-  for_each = {
-    for object in data.aws_s3_object.s3_objects :
-    object.key => object
-    if object.content_type == "application/zip"
+locals {
+  s3_objects_map = {
+    for obj in data.aws_s3_object.s3_objects :
+    obj.key => obj
   }
+}
 
-  function_name    = replace(trimsuffix(basename(each.key), ".zip"), ".", "-")
+resource "aws_lambda_function" "api_routes" {
+  for_each = { for route in local.api_routes : "${route.httpVerb}-${route.path}" => route }
+
+  function_name    = each.key
   s3_bucket        = aws_s3_bucket.api.id
-  s3_key           = each.key
+  s3_key           = "v0/${each.value.operationId}.zip"
   runtime          = "nodejs18.x"
   handler          = "index.handler"
   timeout          = 20
   memory_size      = 2048
   role             = aws_iam_role.api_routes_roles.arn
-  source_code_hash = each.value.etag
+  source_code_hash = local.s3_objects_map["v0/${each.value.operationId}.zip"].etag
+  description      = each.value.description
 }
 
 resource "aws_cloudwatch_log_group" "api_routes" {
