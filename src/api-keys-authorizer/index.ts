@@ -14,13 +14,13 @@ export const handler = async (
 
     if (apiKey == null) return { isAuthorized: false };
 
-    const client: DynamoDBClient = new DynamoDBClient();
     const input = {
       Key: { key: { S: apiKey } },
       TableName: 'cartographie-nationale.api-keys',
     };
-    const command: GetItemCommand = new GetItemCommand(input);
-    const response: GetItemCommandOutput = await client.send(command);
+    const response: GetItemCommandOutput = await new DynamoDBClient().send(
+      new GetItemCommand(input),
+    );
 
     return {
       isAuthorized: response.Item != null,

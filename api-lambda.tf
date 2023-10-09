@@ -17,7 +17,7 @@ locals {
 }
 
 resource "aws_lambda_function" "api_routes" {
-  for_each = { for route in local.api_routes : "${route.httpVerb}-${route.path}" => route }
+  for_each = { for route in local.api_routes : route.key => route }
 
   function_name    = each.key
   s3_bucket        = aws_s3_bucket.api.id

@@ -8,7 +8,8 @@ locals {
   api_routes = flatten([
     for path, routes in local.openapi_file.paths : [
       for httpVerb, route in routes : {
-        path                = trimprefix(path, "/")
+        key                 = "${httpVerb}${replace(replace(replace(path, "/", "-"), "{", "by-"), "}", "")}"
+        path                = path
         httpVerb            = httpVerb
         description         = route.summary
         operationId         = route.operationId

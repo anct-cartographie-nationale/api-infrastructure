@@ -95,10 +95,10 @@ resource "aws_apigatewayv2_integration" "api_integrations" {
 }
 
 resource "aws_apigatewayv2_route" "api_route" {
-  for_each = { for route in local.api_routes : "${route.httpVerb}-${route.path}" => route }
+  for_each = { for route in local.api_routes : route.key => route }
 
   api_id             = aws_apigatewayv2_api.cartographie_nationale.id
-  route_key          = "${upper(each.value.httpVerb)} /${each.value.path}"
+  route_key          = "${upper(each.value.httpVerb)} ${each.value.path}"
   target             = "integrations/${aws_apigatewayv2_integration.api_integrations[each.key].id}"
   authorizer_id      = each.value.apiKeyAuthorization == true ? aws_apigatewayv2_authorizer.api_key_authorizer.id : null
   authorization_type = each.value.apiKeyAuthorization == true ? "CUSTOM" : null
