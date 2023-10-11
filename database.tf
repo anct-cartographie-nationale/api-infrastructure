@@ -73,7 +73,7 @@ data "aws_iam_policy_document" "lieux_inclusion_numerique_table_policy_document"
       "dynamodb:UpdateItem",
       "dynamodb:DeleteItem",
     ]
-    resources = [aws_dynamodb_table.lieux_inclusion_numerique_table.arn]
+    resources = [aws_dynamodb_table.lieux_inclusion_numerique_table.arn, "${aws_dynamodb_table.lieux_inclusion_numerique_table.arn}/index/*", ]
   }
 }
 
