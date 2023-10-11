@@ -118,12 +118,12 @@ data "aws_iam_policy_document" "read_from_s3_policy_document" {
 
 resource "aws_iam_role_policy" "read_from_s3_role_policy" {
   name   = "${local.name_prefix}.read-from-s3-role-policy"
-  role   = aws_iam_role.import_from_s3_role.id
+  role   = aws_iam_role.import_from_s3_execution_role.id
   policy = data.aws_iam_policy_document.read_from_s3_policy_document.json
 }
 
 resource "aws_iam_role_policy" "import_in_dynamo_table_role_policy" {
   name   = "${local.name_prefix}.import-in-dynamo-table-role-policy"
-  role   = aws_iam_role.import_from_s3_role.id
+  role   = aws_iam_role.import_from_s3_execution_role.id
   policy = data.aws_iam_policy_document.lieux_inclusion_numerique_table_policy_document.json
 }

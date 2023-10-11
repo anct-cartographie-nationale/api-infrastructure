@@ -58,6 +58,12 @@ resource "aws_cloudwatch_log_group" "api_keys_authorizer_cloudwatch_log_group" {
   retention_in_days = 14
 }
 
+resource "aws_iam_role_policy" "api_keys_authorizer_cloudwatch_role_policy" {
+  name   = "${local.name_prefix}.api-keys-authorizer.cloud-watch-role-policy"
+  role   = aws_iam_role.api_keys_authorizer_execution_role.id
+  policy = data.aws_iam_policy_document.cloud_watch_role_policy_document.json
+}
+
 data "aws_iam_policy_document" "api_keys_authorizer_execution_policy" {
   statement {
     effect  = "Allow"
