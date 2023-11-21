@@ -24,7 +24,7 @@ resource "aws_lambda_function" "api_routes" {
   s3_key           = "v0/${each.value.operationId}.zip"
   runtime          = "nodejs18.x"
   handler          = "index.handler"
-  timeout          = 20
+  timeout          = 300
   memory_size      = 2048
   role             = aws_iam_role.api_route_execution_role.arn
   source_code_hash = local.s3_objects_map["v0/${each.value.operationId}.zip"].etag
