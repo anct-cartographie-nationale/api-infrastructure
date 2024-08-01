@@ -7,6 +7,9 @@ resource "aws_apigatewayv2_api" "cartographie_nationale" {
     allow_origins = [
       "*"
     ]
+    allow_methods = [
+      "GET"
+    ]
   }
 }
 
