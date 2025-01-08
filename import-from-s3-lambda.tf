@@ -20,7 +20,7 @@ resource "aws_lambda_function" "import_from_s3" {
   handler          = "index.handler"
   runtime          = "nodejs18.x"
   memory_size      = 1024
-  timeout          = 120
+  timeout          = 900
   source_code_hash = fileexists("${path.module}/import-from-s3/index.mjs") ? data.archive_file.import_from_s3_archive[0].output_base64sha256 : null
 }
 

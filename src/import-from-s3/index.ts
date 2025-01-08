@@ -25,7 +25,7 @@ const removeAllItemsFrom =
     let ExclusiveStartKey = undefined;
 
     do {
-      console.log('Getting a batch of items to delete...');
+      console.log('Getting a batch of items to delete');
       const scanCommand: ScanCommand = new ScanCommand({
         ProjectionExpression: 'id',
         TableName: tableName,
@@ -36,7 +36,7 @@ const removeAllItemsFrom =
       const dynamoDBResponse: ScanCommandOutput =
         await docClient.send(scanCommand);
 
-      console.log('Deleting batch of items...');
+      console.log('Deleting batch of items');
       await Promise.all(
         dynamoDBResponse.Items.map(
           async (item): Promise<DeleteCommandOutput> =>
@@ -53,13 +53,21 @@ const removeAllItemsFrom =
 const importAllItemsFrom =
   (docClient: DynamoDBDocumentClient) =>
   async (itemsToImport: object[], tableName: string): Promise<void> => {
-    console.log('Writing all items...');
-    await Promise.all(
-      itemsToImport.map(
-        async (item: object): Promise<PutCommandOutput> =>
-          docClient.send(new PutCommand({ TableName: tableName, Item: item })),
-      ),
-    );
+    console.log(`Writing ${itemsToImport.length} items`);
+
+    for (let i = 0; i < itemsToImport.length; i++) {
+      if (i % 1000 === 0) {
+        console.log(
+          `Writing items ${i + 1} to ${Math.min(
+            i + 1000,
+            itemsToImport.length,
+          )} of ${itemsToImport.length}`,
+        );
+      }
+      await docClient.send(
+        new PutCommand({ TableName: tableName, Item: itemsToImport[i] }),
+      );
+    }
   };
 
 const tableNameFromJsonFile = (key: string): string => key.replace('.json', '');
