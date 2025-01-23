@@ -5,7 +5,6 @@ import {
   DeleteCommandOutput,
   DynamoDBDocumentClient,
   PutCommand,
-  PutCommandOutput,
   ScanCommand,
   ScanCommandOutput,
 } from '@aws-sdk/lib-dynamodb';
@@ -48,6 +47,7 @@ const removeAllItemsFrom =
 
       ExclusiveStartKey = dynamoDBResponse.LastEvaluatedKey;
     } while (ExclusiveStartKey);
+    console.log('All items have been deleted');
   };
 
 const importAllItemsFrom =
@@ -94,6 +94,11 @@ const getUploadToS3Info = ({ Records }: S3Event): UploadToS3Info => ({
   key: decodeURIComponent(Records[0].s3.object.key.replace(/\+/g, ' ')),
 });
 
+const badRequestResponseWhenNoItemsToImport = (): APIGatewayProxyResultV2 => ({
+  statusCode: 400,
+  body: 'There are no items to import',
+});
+
 export const handler = async (
   s3Event: S3Event,
 ): Promise<APIGatewayProxyResultV2> => {
@@ -104,8 +109,12 @@ export const handler = async (
   );
 
   try {
-    await removeAllItemsFrom(docClient)(tableName);
     const itemsToImport: object[] = await readJsonFromS3(uploadToS3Info);
+
+    if (itemsToImport.length === 0)
+      return badRequestResponseWhenNoItemsToImport();
+
+    await removeAllItemsFrom(docClient)(tableName);
     await importAllItemsFrom(docClient)(itemsToImport, tableName);
 
     return successResponseForImportTo(tableName);
