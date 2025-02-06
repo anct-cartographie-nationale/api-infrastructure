@@ -4,12 +4,11 @@ resource "aws_apigatewayv2_api" "cartographie_nationale" {
   protocol_type = "HTTP"
 
   cors_configuration {
-    allow_origins = [
-      "*"
-    ]
-    allow_methods = [
-      "GET"
-    ]
+    allow_origins  = ["*"]
+    allow_methods  = ["OPTIONS", "GET"]
+    allow_headers  = ["Content-Type", "Authorization"]
+    expose_headers = ["Content-Length"]
+    max_age        = 3600
   }
 }
 
