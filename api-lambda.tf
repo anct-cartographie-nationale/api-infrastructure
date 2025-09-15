@@ -22,7 +22,7 @@ resource "aws_lambda_function" "api_routes" {
   function_name    = each.key
   s3_bucket        = aws_s3_bucket.api.id
   s3_key           = "v0/${each.value.operationId}.zip"
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs22.x"
   handler          = "index.handler"
   timeout          = 300
   memory_size      = 2048

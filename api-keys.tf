@@ -49,7 +49,7 @@ resource "aws_lambda_function" "api_keys_authorizer" {
   function_name    = "api-keys-authorizer"
   role             = aws_iam_role.api_keys_authorizer_execution_role.arn
   handler          = "index.handler"
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs22.x"
   source_code_hash = fileexists("${path.module}/api-keys-authorizer/index.mjs") ? data.archive_file.import_from_s3_archive[0].output_base64sha256 : null
 }
 

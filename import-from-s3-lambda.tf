@@ -18,7 +18,7 @@ resource "aws_lambda_function" "import_from_s3" {
   function_name    = "import-from-s3"
   role             = aws_iam_role.import_from_s3_execution_role.arn
   handler          = "index.handler"
-  runtime          = "nodejs18.x"
+  runtime          = "nodejs22.x"
   memory_size      = 1024
   timeout          = 900
   source_code_hash = fileexists("${path.module}/import-from-s3/index.mjs") ? data.archive_file.import_from_s3_archive[0].output_base64sha256 : null

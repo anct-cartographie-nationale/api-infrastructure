@@ -56,6 +56,19 @@ const importAllItemsFrom =
     console.log(`Writing ${itemsToImport.length} items`);
 
     for (let i = 0; i < itemsToImport.length; i++) {
+      const item = itemsToImport[i] as {id: string};
+
+      if (typeof item.id !== "string") {
+        console.error(`❌ Invalid id type at index ${i}:`, item.id);
+        continue;
+      }
+
+      const size = Buffer.byteLength(item.id, "utf8");
+      if (size > 2048) {
+        console.error(`❌ Oversized id at index ${i}: length ${size} bytes`);
+        continue;
+      }
+
       if (i % 1000 === 0) {
         console.log(
           `Writing items ${i + 1} to ${Math.min(
@@ -65,7 +78,7 @@ const importAllItemsFrom =
         );
       }
       await docClient.send(
-        new PutCommand({ TableName: tableName, Item: itemsToImport[i] }),
+        new PutCommand({ TableName: tableName, Item: item }),
       );
     }
   };

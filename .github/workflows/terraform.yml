@@ -12,40 +12,50 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
+
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: 8.6.7
+          version: latest
+
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v5
         with:
-          node-version: '18.x'
+          node-version: latest
           cache: 'pnpm'
+
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+
       - name: Build
         run: pnpm build
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
       - name: Terraform Format
         id: fmt
         run: terraform fmt -check
+
       - name: Terraform Init
         id: init
         run: terraform init
         env:
           TF_WORKSPACE: production
+
       - name: Terraform Validate
         id: validate
         run: terraform validate -no-color
+
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
         run: terraform plan -no-color -input=false
         continue-on-error: true
+
       - name: Update Pull Request
         uses: actions/github-script@v6.0.0
         if: github.event_name == 'pull_request'
@@ -75,14 +85,17 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
+
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1
+
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
         env:
           TF_WORKSPACE: production
+
       - name: Prepare and Zip .mjs files
         run: |
           mkdir dist
@@ -92,6 +105,7 @@ jobs:
           mv "api-keys-authorizer/index.mjs" "dist/index.mjs"
           (cd dist && zip "api-keys-authorizer.zip" "index.mjs")
           rm "dist/index.mjs"
+
       - name: Publish on S3
         uses: jakejarvis/s3-sync-action@master
         with:
