@@ -65,7 +65,7 @@ const importAllItemsFrom =
 
       const size = Buffer.byteLength(item.id, "utf8");
       if (size > 2048) {
-        console.error(`❌ Oversized id at index ${i}: length ${size} bytes`);
+        console.error(`❌ Oversized id at index ${i}: length ${size} bytes : ${item.id}`);
         continue;
       }
 
